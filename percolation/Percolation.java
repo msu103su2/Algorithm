@@ -14,29 +14,31 @@ public class Percolation {
     private final int n;
     private final int nP;
     private int[][] sz;
-    private final int[] order;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
-        this.n = n;
-        this.nP = n + 2;
-        openSites = 0;
-        order = new int[n * n];
-        grid = new int[nP][nP];
-        sz = new int[nP][nP];
-        for (int i = 0; i < nP; i++)
-            for (int j = 0; j < nP; j++) {
-                grid[i][j] = 0;
-                sz[i][j] = 0;
+        if (n < 0) {
+            throw new NegativeArraySizeException();
+        }
+        else if (n == 0) {
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.n = n;
+            this.nP = n + 2;
+            openSites = 0;
+            grid = new int[nP][nP];
+            sz = new int[nP][nP];
+            for (int i = 0; i < nP; i++)
+                for (int j = 0; j < nP; j++) {
+                    grid[i][j] = 0;
+                    sz[i][j] = 0;
+                }
+            for (int j = 0; j < n; j++) {
+                grid[0][j + 1] = 1;
+                grid[n + 1][j + 1] = nP * (nP - 1) + 1;
             }
-        for (int j = 0; j < n; j++) {
-            grid[0][j + 1] = 1;
-            grid[n + 1][j + 1] = nP * (nP - 1) + 1;
         }
-        for (int i = 0; i < n * n; i++) {
-            order[i] = i;
-        }
-        StdRandom.shuffle(order);
     }
 
     // connect two sites
@@ -107,12 +109,6 @@ public class Percolation {
 
     // returns the number of open sites
     public int numberOfOpenSites() {
-        int row, col;
-        while (!percolates()) {
-            row = order[openSites] / n + 1;
-            col = order[openSites] % n + 1;
-            open(row, col);
-        }
         return openSites;
     }
 
@@ -137,6 +133,16 @@ public class Percolation {
     public static void main(String[] args) {
         int n = Integer.parseInt(args[0]);
         Percolation p = new Percolation(n);
+        int[] order = new int[n * n];
+        for (int i = 0; i < n * n; i++) {
+            order[i] = i;
+        }
+        StdRandom.shuffle(order);
+        while (!p.percolates()) {
+            int row = order[p.numberOfOpenSites()] / n + 1;
+            int col = order[p.numberOfOpenSites()] % n + 1;
+            p.open(row, col);
+        }
         StdOut.print(p.numberOfOpenSites());
     }
 }

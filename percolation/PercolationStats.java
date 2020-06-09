@@ -5,14 +5,14 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
-    private int trials;
-    private double[] results;
+    private final int trials;
     private double avg;
     private double s;
-    private final double confidence95 = 1.96;
+
 
     // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -21,35 +21,46 @@ public class PercolationStats {
         }
         else {
             this.trials = trials;
-            results = new double[trials];
+            double[] results = new double[trials];
+            int[] order = new int[n * n];
+            for (int i = 0; i < n * n; i++) {
+                order[i] = i;
+            }
             for (int i = 0; i < trials; i++) {
+                StdRandom.shuffle(order);
                 Percolation p = new Percolation(n);
-                double ni = p.numberOfOpenSites();
-                results[i] = ni / (n * n);
+                int j = 0;
+                while (!p.percolates()) {
+                    int row = order[j] / n + 1;
+                    int col = order[j] % n + 1;
+                    p.open(row, col);
+                    j++;
+                }
+                results[i] = (1.0 * j) / (n * n);
+                avg = StdStats.mean(results);
+                s = StdStats.stddev(results);
             }
         }
     }
 
     // sample mean of percolation threshold
     public double mean() {
-        avg = StdStats.mean(results);
         return avg;
     }
 
     // sample standard deviation of percolation threshold
     public double stddev() {
-        s = StdStats.stddev(results);
         return s;
     }
 
     // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        return avg - confidence95 * s / Math.sqrt(trials);
+        return avg - 1.96 * s / Math.sqrt(trials);
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        return avg + confidence95 * s / Math.sqrt(trials);
+        return avg + 1.96 * s / Math.sqrt(trials);
     }
 
     // test client (see below)
