@@ -6,14 +6,15 @@
 
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
     private int[][] grid;
+    private WeightedQuickUnionUF qf;
     private int openSites;
     private final int n;
     private final int nP;
-    private int[][] sz;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -28,36 +29,23 @@ public class Percolation {
             this.nP = n + 2;
             openSites = 0;
             grid = new int[nP][nP];
-            sz = new int[nP][nP];
+            qf = new WeightedQuickUnionUF(nP * nP);
             for (int i = 0; i < nP; i++)
                 for (int j = 0; j < nP; j++) {
                     grid[i][j] = 0;
-                    sz[i][j] = 0;
                 }
             for (int j = 0; j < n; j++) {
                 grid[0][j + 1] = 1;
-                grid[n + 1][j + 1] = nP * (nP - 1) + 1;
+                grid[n + 1][j + 1] = 1;
+                qf.union(j, j + 1);
+                qf.union(nP * (n + 1) + j, nP * (n + 1) + j + 1);
             }
         }
     }
 
     // connect two sites
     private void connect(int row0, int col0, int row1, int col1) {
-        int cache0 = root(row0, col0);
-        int cache1 = root(row1, col1);
-        int root0row = cache0 / nP;
-        int root0col = cache0 % nP;
-        int root1row = cache1 / nP;
-        int root1col = cache1 % nP;
-        if (sz[root1row][root1col]
-                <= sz[root0row][root0col]) {
-            grid[root0row][root0col] = cache1;
-            sz[root1row][root1col] += sz[root0row][root0col];
-        }
-        else {
-            grid[root1row][root1col] = cache0;
-            sz[root0row][root0col] += sz[root1row][root1col];
-        }
+        qf.union(row0 * nP + col0, row1 * nP + col1);
     }
 
     // opens the site (row, col) if it is not open already
@@ -67,8 +55,7 @@ public class Percolation {
         }
         else {
             if (!isOpen(row, col)) {
-                grid[row][col] = row * nP + col;
-                sz[row][col] = 1;
+                grid[row][col] = 1;
                 openSites++;
                 if (isOpen(row - 1, col)) {
                     connect(row, col, row - 1, col);
@@ -118,15 +105,7 @@ public class Percolation {
     }
 
     private int root(int row, int col) {
-        int r = row;
-        int c = col;
-        int temp;
-        while (grid[r][c] != r * nP + c) {
-            temp = grid[r][c] / nP;
-            c = grid[r][c] % nP;
-            r = temp;
-        }
-        return grid[r][c];
+        return qf.find(row * nP + col);
     }
 
     // test client (optional)

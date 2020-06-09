@@ -37,9 +37,9 @@ public class PercolationStats {
                     j++;
                 }
                 results[i] = (1.0 * j) / (n * n);
-                avg = StdStats.mean(results);
-                s = StdStats.stddev(results);
             }
+            avg = StdStats.mean(results);
+            s = StdStats.stddev(results);
         }
     }
 
