@@ -53,6 +53,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             Item item = s[index];
             s[index] = s[--N];
             s[N] = null;
+            if (N > 0 && N == s.length / 4) resize(s.length / 2);
             return item;
         }
     }
@@ -91,7 +92,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         public Item next() {
-            if (isEmpty()) throw new java.util.NoSuchElementException();
+            if (!hasNext()) throw new java.util.NoSuchElementException();
             else return s[order[--i]];
         }
     }
