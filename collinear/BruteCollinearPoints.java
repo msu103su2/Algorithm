@@ -44,11 +44,11 @@ public class BruteCollinearPoints {
     }      // the number of line segments
 
     public LineSegment[] segments() {
-        return lineSegments;
+        return lineSegments.clone();
     }          // the line segments
 
     private boolean checkpoints(Point[] points) {
-        if (points.length == 0) return false;
+        if (points == null) return false;
         else {
             for (Point p : points) {
                 if (p == null) return false;
