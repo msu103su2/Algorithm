@@ -4,12 +4,11 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static java.lang.Math.abs;
 
 public class Board {
 
@@ -60,7 +59,7 @@ public class Board {
             int count = 0;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    if (tiles[i][j] != (i * n + j + 1) % n * n) count++;
+                    if (tiles[i][j] != (i * n + j + 1) % (n * n)) count++;
                 }
             }
             return count;
@@ -76,10 +75,18 @@ public class Board {
             int goalj;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    goali = (tiles[i][j] - 1) / n;
-                    goalj = (tiles[i][j] - 1) % n;
-                    count += abs(i - goali);
-                    count += abs(j - goalj);
+                    if (tiles[i][j] == 0) {
+                        goali = n - 1;
+                        goalj = n - 1;
+                    }
+                    else {
+                        goali = (tiles[i][j] - 1) / n;
+                        goalj = (tiles[i][j] - 1) % n;
+                    }
+                    if (i > goali) count += i - goali;
+                    if (i < goali) count += -(i - goali);
+                    if (j > goalj) count += j - goalj;
+                    if (j < goalj) count += -(j - goalj);
                 }
             }
             return count;
@@ -102,74 +109,73 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        return new listofBoards(tiles);
+        return new ListOfBoards(tiles);
     }
 
-    private class listofBoards implements Iterable<Board> {
+    private class ListOfBoards implements Iterable<Board> {
 
         private final Board[] nbs;
         private int index = 0;
 
-        public listofBoards(int[][] intiles) {
-            int n = tiles[0].length;
-            int[][] tiles = new int[n][n];
+        public ListOfBoards(int[][] intiles) {
+            int[][] cptiles = new int[n][n];
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    tiles[i][j] = intiles[i][j];
+                    cptiles[i][j] = intiles[i][j];
                 }
             }
             Board[] cache = new Board[4];
             int zeroi = 0;
             int zeroj = 0;
             outer:
-            for (; zeroi < n; zeroi++) {
-                for (; zeroj < n; zeroj++) {
-                    if (tiles[zeroi][zeroj] == 0) break outer;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (cptiles[i][j] == 0) {
+                        zeroi = i;
+                        zeroj = j;
+                        break outer;
+                    }
                 }
             }
 
             int count = 0;
 
             try {
-                int test = tiles[zeroi - 1][zeroj];
-                tiles[zeroi][zeroj] = tiles[zeroi - 1][zeroj];
-                tiles[zeroi - 1][zeroj] = 0;
-                cache[count++] = new Board(tiles);
-                tiles[zeroi - 1][zeroj] = tiles[zeroi][zeroj];
-                tiles[zeroi][zeroj] = 0;
+                cptiles[zeroi][zeroj] = cptiles[zeroi - 1][zeroj];
+                cptiles[zeroi - 1][zeroj] = 0;
+                cache[count++] = new Board(cptiles);
+                cptiles[zeroi - 1][zeroj] = cptiles[zeroi][zeroj];
+                cptiles[zeroi][zeroj] = 0;
             }
             catch (ArrayIndexOutOfBoundsException e) {
             }
 
             try {
-                int test = tiles[zeroi][zeroj - 1];
-                tiles[zeroi][zeroj] = tiles[zeroi][zeroj - 1];
-                tiles[zeroi][zeroj - 1] = 0;
-                cache[count++] = new Board(tiles);
-                tiles[zeroi][zeroj - 1] = tiles[zeroi][zeroj];
-                tiles[zeroi][zeroj] = 0;
+                cptiles[zeroi][zeroj] = cptiles[zeroi][zeroj - 1];
+                cptiles[zeroi][zeroj - 1] = 0;
+                cache[count++] = new Board(cptiles);
+                cptiles[zeroi][zeroj - 1] = cptiles[zeroi][zeroj];
+                cptiles[zeroi][zeroj] = 0;
             }
             catch (ArrayIndexOutOfBoundsException e) {
             }
 
             try {
-                int test = tiles[zeroi + 1][zeroj];
-                tiles[zeroi][zeroj] = tiles[zeroi + 1][zeroj];
-                tiles[zeroi + 1][zeroj] = 0;
-                cache[count++] = new Board(tiles);
-                tiles[zeroi + 1][zeroj] = tiles[zeroi][zeroj];
-                tiles[zeroi][zeroj] = 0;
+                cptiles[zeroi][zeroj] = cptiles[zeroi + 1][zeroj];
+                cptiles[zeroi + 1][zeroj] = 0;
+                cache[count++] = new Board(cptiles);
+                cptiles[zeroi + 1][zeroj] = cptiles[zeroi][zeroj];
+                cptiles[zeroi][zeroj] = 0;
             }
             catch (ArrayIndexOutOfBoundsException e) {
             }
 
             try {
-                int test = tiles[zeroi][zeroj + 1];
-                tiles[zeroi][zeroj] = tiles[zeroi][zeroj + 1];
-                tiles[zeroi][zeroj + 1] = 0;
-                cache[count++] = new Board(tiles);
-                tiles[zeroi][zeroj + 1] = tiles[zeroi][zeroj];
-                tiles[zeroi][zeroj] = 0;
+                cptiles[zeroi][zeroj] = cptiles[zeroi][zeroj + 1];
+                cptiles[zeroi][zeroj + 1] = 0;
+                cache[count++] = new Board(cptiles);
+                cptiles[zeroi][zeroj + 1] = cptiles[zeroi][zeroj];
+                cptiles[zeroi][zeroj] = 0;
             }
             catch (ArrayIndexOutOfBoundsException e) {
             }
@@ -210,6 +216,10 @@ public class Board {
         int aj = StdRandom.uniform(n);
         int bi = StdRandom.uniform(n);
         int bj = StdRandom.uniform(n);
+        while ((ai == bi && aj == bj) || tiles[ai][aj] == 0 || tiles[bi][bj] == 0) {
+            bi = StdRandom.uniform(n);
+            bj = StdRandom.uniform(n);
+        }
         int cache = ntiles[ai][aj];
         ntiles[ai][aj] = ntiles[bi][bj];
         ntiles[bi][bj] = cache;
@@ -218,6 +228,7 @@ public class Board {
 
     // unit testing (not graded)
     public static void main(String[] args) {
+        StdOut.print(args[0]);
     }
 
 }
