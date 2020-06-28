@@ -4,11 +4,11 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 public class Board {
 
@@ -109,99 +109,69 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        return new ListOfBoards(tiles);
-    }
-
-    private class ListOfBoards implements Iterable<Board> {
-
-        private final Board[] nbs;
-        private int index = 0;
-
-        public ListOfBoards(int[][] intiles) {
-            int[][] cptiles = new int[n][n];
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    cptiles[i][j] = intiles[i][j];
+        Queue<Board> nbs = new Queue<>();
+        int[][] cpTiles = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                cpTiles[i][j] = tiles[i][j];
+            }
+        }
+        int zeroI = 0;
+        int zeroJ = 0;
+        outer:
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (cpTiles[i][j] == 0) {
+                    zeroI = i;
+                    zeroJ = j;
+                    break outer;
                 }
             }
-            Board[] cache = new Board[4];
-            int zeroi = 0;
-            int zeroj = 0;
-            outer:
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (cptiles[i][j] == 0) {
-                        zeroi = i;
-                        zeroj = j;
-                        break outer;
-                    }
-                }
-            }
-
-            int count = 0;
-
-            try {
-                cptiles[zeroi][zeroj] = cptiles[zeroi - 1][zeroj];
-                cptiles[zeroi - 1][zeroj] = 0;
-                cache[count++] = new Board(cptiles);
-                cptiles[zeroi - 1][zeroj] = cptiles[zeroi][zeroj];
-                cptiles[zeroi][zeroj] = 0;
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-            }
-
-            try {
-                cptiles[zeroi][zeroj] = cptiles[zeroi][zeroj - 1];
-                cptiles[zeroi][zeroj - 1] = 0;
-                cache[count++] = new Board(cptiles);
-                cptiles[zeroi][zeroj - 1] = cptiles[zeroi][zeroj];
-                cptiles[zeroi][zeroj] = 0;
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-            }
-
-            try {
-                cptiles[zeroi][zeroj] = cptiles[zeroi + 1][zeroj];
-                cptiles[zeroi + 1][zeroj] = 0;
-                cache[count++] = new Board(cptiles);
-                cptiles[zeroi + 1][zeroj] = cptiles[zeroi][zeroj];
-                cptiles[zeroi][zeroj] = 0;
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-            }
-
-            try {
-                cptiles[zeroi][zeroj] = cptiles[zeroi][zeroj + 1];
-                cptiles[zeroi][zeroj + 1] = 0;
-                cache[count++] = new Board(cptiles);
-                cptiles[zeroi][zeroj + 1] = cptiles[zeroi][zeroj];
-                cptiles[zeroi][zeroj] = 0;
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-            }
-
-            nbs = new Board[count];
-            for (int i = 0; i < count; i++) nbs[i] = cache[i];
         }
 
-        public Iterator<Board> iterator() {
-            return new ListIterator();
+        int count = 0;
+
+        try {
+            cpTiles[zeroI][zeroJ] = cpTiles[zeroI - 1][zeroJ];
+            cpTiles[zeroI - 1][zeroJ] = 0;
+            nbs.enqueue(new Board(cpTiles));
+            cpTiles[zeroI - 1][zeroJ] = cpTiles[zeroI][zeroJ];
+            cpTiles[zeroI][zeroJ] = 0;
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
         }
 
-        private class ListIterator implements Iterator<Board> {
-            public boolean hasNext() {
-                return index < nbs.length;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
-            public Board next() {
-                if (!hasNext()) throw new java.util.NoSuchElementException();
-                else return nbs[index++];
-            }
+        try {
+            cpTiles[zeroI][zeroJ] = cpTiles[zeroI][zeroJ - 1];
+            cpTiles[zeroI][zeroJ - 1] = 0;
+            nbs.enqueue(new Board(cpTiles));
+            cpTiles[zeroI][zeroJ - 1] = cpTiles[zeroI][zeroJ];
+            cpTiles[zeroI][zeroJ] = 0;
         }
+        catch (ArrayIndexOutOfBoundsException e) {
+        }
+
+        try {
+            cpTiles[zeroI][zeroJ] = cpTiles[zeroI + 1][zeroJ];
+            cpTiles[zeroI + 1][zeroJ] = 0;
+            nbs.enqueue(new Board(cpTiles));
+            cpTiles[zeroI + 1][zeroJ] = cpTiles[zeroI][zeroJ];
+            cpTiles[zeroI][zeroJ] = 0;
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+        }
+
+        try {
+            cpTiles[zeroI][zeroJ] = cpTiles[zeroI][zeroJ + 1];
+            cpTiles[zeroI][zeroJ + 1] = 0;
+            nbs.enqueue(new Board(cpTiles));
+            cpTiles[zeroI][zeroJ + 1] = cpTiles[zeroI][zeroJ];
+            cpTiles[zeroI][zeroJ] = 0;
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+        }
+
+        return nbs;
     }
 
     // a board that is obtained by exchanging any pair of tiles
