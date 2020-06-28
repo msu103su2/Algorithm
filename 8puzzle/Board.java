@@ -4,6 +4,7 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
@@ -17,6 +18,8 @@ public class Board {
     private final int ham;
     private final int man;
     private final boolean computted;
+    private boolean twinComputted;
+    private int tai, taj, tbi, tbj;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -174,29 +177,62 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        int[][] ntiles = new int[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                ntiles[i][j] = tiles[i][j];
+        if (twinComputted) {
+            int[][] ntiles = new int[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    ntiles[i][j] = tiles[i][j];
+                }
             }
+            int cache = ntiles[tai][taj];
+            ntiles[tai][taj] = ntiles[tbi][tbj];
+            ntiles[tbi][tbj] = cache;
+            twinComputted = true;
+            return new Board(ntiles);
         }
-        int ai = StdRandom.uniform(n);
-        int aj = StdRandom.uniform(n);
-        int bi = StdRandom.uniform(n);
-        int bj = StdRandom.uniform(n);
-        while ((ai == bi && aj == bj) || tiles[ai][aj] == 0 || tiles[bi][bj] == 0) {
-            bi = StdRandom.uniform(n);
-            bj = StdRandom.uniform(n);
+        else {
+            int[][] ntiles = new int[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    ntiles[i][j] = tiles[i][j];
+                }
+            }
+            int ai = StdRandom.uniform(n);
+            int aj = StdRandom.uniform(n);
+            int bi = StdRandom.uniform(n);
+            int bj = StdRandom.uniform(n);
+            while ((ai == bi && aj == bj) || tiles[ai][aj] == 0 || tiles[bi][bj] == 0) {
+                ai = StdRandom.uniform(n);
+                aj = StdRandom.uniform(n);
+                bi = StdRandom.uniform(n);
+                bj = StdRandom.uniform(n);
+            }
+            int cache = ntiles[ai][aj];
+            ntiles[ai][aj] = ntiles[bi][bj];
+            ntiles[bi][bj] = cache;
+            twinComputted = true;
+            tai = ai;
+            taj = aj;
+            tbi = bi;
+            tbj = bj;
+            return new Board(ntiles);
         }
-        int cache = ntiles[ai][aj];
-        ntiles[ai][aj] = ntiles[bi][bj];
-        ntiles[bi][bj] = cache;
-        return new Board(ntiles);
     }
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        StdOut.print(args[0]);
+        // create initial board from file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        int[][] tiles = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                tiles[i][j] = in.readInt();
+        Board initial = new Board(tiles);
+
+        for (int i = 0; i < 100; i++) {
+            StdOut.print(initial.twin().toString());
+        }
     }
 
 }
