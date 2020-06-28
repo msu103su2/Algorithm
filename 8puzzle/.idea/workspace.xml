@@ -54,7 +54,7 @@
     <configuration name="Solver" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Solver" />
       <module name="Algorithms, Part I" />
-      <option name="PROGRAM_PARAMETERS" value="puzzle3x3-06.txt" />
+      <option name="PROGRAM_PARAMETERS" value="puzzle29.txt" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>

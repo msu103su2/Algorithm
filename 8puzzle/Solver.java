@@ -44,7 +44,7 @@ public class Solver {
         }
 
         public int priorityF() {
-            return hamming + moves;
+            return manhattan + moves;
         }
 
         public boolean isGoal() {

@@ -59,7 +59,9 @@ public class Board {
             int count = 0;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    if (tiles[i][j] != (i * n + j + 1) % (n * n)) count++;
+                    if (tiles[i][j] != 0) {
+                        if (tiles[i][j] != (i * n + j + 1)) count++;
+                    }
                 }
             }
             return count;
@@ -75,18 +77,14 @@ public class Board {
             int goalj;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    if (tiles[i][j] == 0) {
-                        goali = n - 1;
-                        goalj = n - 1;
-                    }
-                    else {
+                    if (tiles[i][j] != 0) {
                         goali = (tiles[i][j] - 1) / n;
                         goalj = (tiles[i][j] - 1) % n;
+                        if (i > goali) count += i - goali;
+                        if (i < goali) count += -(i - goali);
+                        if (j > goalj) count += j - goalj;
+                        if (j < goalj) count += -(j - goalj);
                     }
-                    if (i > goali) count += i - goali;
-                    if (i < goali) count += -(i - goali);
-                    if (j > goalj) count += j - goalj;
-                    if (j < goalj) count += -(j - goalj);
                 }
             }
             return count;
