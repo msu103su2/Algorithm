@@ -57,12 +57,10 @@ public class KdTree {
         else
             cmp = p.y() - x.p.y();
 
-        if (cmp < 0)
+        if (cmp <= 0)
             x.left = put(x.left, p, !cmpX);
-        else if (cmp > 0)
-            x.right = put(x.right, p, !cmpX);
         else
-            x.p = p;
+            x.right = put(x.right, p, !cmpX);
         return x;
     }
 
@@ -71,15 +69,15 @@ public class KdTree {
         Node x = root;
         boolean cmpX = rootCmpX;
         while (x != null) {
+            if (x.p.equals(p)) return true;
             double cmp;
             if (cmpX)
                 cmp = p.x() - x.p.x();
             else
                 cmp = p.y() - x.p.y();
 
-            if (cmp < 0) x = x.left;
-            else if (cmp > 0) x = x.right;
-            else return true;
+            if (cmp <= 0) x = x.left;
+            else x = x.right;
             cmpX = !cmpX;
         }
         return false;
@@ -137,8 +135,8 @@ public class KdTree {
     }
 
     private boolean intersect(RectHV rect, Point2D p, boolean cmpX) {
-        if (cmpX) return p.x() < rect.xmax() && p.x() > rect.xmin();
-        else return p.y() < rect.ymax() && p.y() > rect.ymin();
+        if (cmpX) return p.x() <= rect.xmax() && p.x() >= rect.xmin();
+        else return p.y() <= rect.ymax() && p.y() >= rect.ymin();
     }
 
     private boolean toRT(RectHV rect, Point2D p, boolean cmpX) {
@@ -157,7 +155,6 @@ public class KdTree {
     private Node nearestPoint(Node x, Point2D p, boolean cmpX) {
         if (x == null) return new Node(new Point2D(10, 10));
         else {
-
             double cmp;
             if (cmpX) cmp = p.x() - x.p.x();
             else cmp = p.y() - x.p.y();
